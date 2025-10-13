@@ -2,11 +2,27 @@ import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 
-interface NotesPageProps {
+interface Props {
   params: Promise<{ slug: string[] }>;
 }
 
-export default async function NotesPage({ params }: NotesPageProps) {
+export async function generateMetadata({ params }: { params: { slug: string[] } }) {
+  const { slug } = await params;
+  return {
+    title: `${slug[0]} Notes`,
+    description: `Notes tagged with "${slug[0]}"`,
+    openGraph: {
+      title: `${slug[0]} Notes`,
+      description: `Notes tagged with "${slug[0]}"`,
+      url: "https://08-zustand-two-alpha.vercel.app",
+      images: [
+        { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
+      ],
+    },
+  };
+}
+
+export default async function NotesPage({ params }: Props) {
   const queryClient = new QueryClient();
 
   const { slug } = await params;

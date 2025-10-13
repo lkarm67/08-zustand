@@ -13,8 +13,16 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "NoteHub",
-  description: "A simple and efficient application designed for managing personal notes.",
+  title: "Note Hub",
+  description: "All your notes in one place.",
+  openGraph: {
+    title: "Note Hub",
+    description: "Stay organized and focused with smart note management in Note Hub.",
+    url: "https://08-zustand-two-alpha.vercel.app",
+    images: [
+      { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
+    ],
+  },
 };
 
 export default function RootLayout({

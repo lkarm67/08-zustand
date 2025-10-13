@@ -10,27 +10,22 @@ type Props = {
   params: Promise<Params>;
 };
 
-export async function generateMetadata(params: Params) {
-  const { id } = params;
-  const note = await fetchNoteById(params.id);
+export async function generateMetadata({ params }: Props){
+  const { id } = await params;
+  const note = await fetchNoteById(id);
   return {
-    title: `${note.title}`,
-    description: `${note.content.slice(0, 30)}`,
+    title: `${note.title} Note`,
+    description: note.content.slice(0, 30),
     openGraph: {
-      title: `Note: ${note.title}`,
-      description: `Note: ${note.content.slice(0, 100)}`,
-      url: `https://notehub.com/notes/${id}`,
+      title: `${note.title} Note`,
+      description: note.content.slice(0, 100),
+      url: `https://08-zustand-two-alpha.vercel.app/notes/${id}`,
       images: [
-        {
-          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
-          width: 1200,
-          height: 630,
-          alt: `${note.title}`,
-        }
-      ]
-    }
-  }
-};
+        { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
+      ],
+    },
+  };
+}
 
 const NoteDetails = async ({ params }: Props) => {
   const { id } = await params;

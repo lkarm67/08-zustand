@@ -1,9 +1,10 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import css from "./NoteForm.module.css";
 import type { NoteTag } from "@/types/note";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "@/lib/api";
+import { useRouter } from "next/router";
+import {  useNoteDraftStore } from "@/lib/store/noteStore";
 
 export interface NoteFormValues {
   title: string;
@@ -28,61 +29,66 @@ interface NoteFormProps {
   onCreated: () => void;
 }
 
-export const NoteForm: React.FC<NoteFormProps> = ({ onCancel, onCreated }) => {
+export default function NoteForm: React.FC<NoteFormProps> = ({ onCancel, onCreated }) => {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { draft, setDraft, clearDraft } = useDraft();
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setDraft({ ...draft, [e.target.name]: e.target.value });
+  };
   const mutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
+      clearDraft();
+      router.push('/notes/filter/all');
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onCreated();
       onCancel();
-      
     },
   });
+
+  const handleSubmit = (formData: FormData) => { 
+    const values = Object.fromEntries(formData.entries()) as NoteFormValues;
+    mutation.mutate(values);
+  }
 
   const initialValues: NoteFormValues = { title: "", content: "", tag: "Todo" };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting }) => {
-        mutation.mutate(values, {
-          onSettled: () => setSubmitting(false),
-        });
-      }}
-    >
-      {({ isSubmitting }) => (
-        <Form className={css.form}>
-          <div className={css.formGroup}>
-            <label htmlFor="title">Title</label>
-            <Field id="title" type="text" name="title" className={css.input} />
-            <ErrorMessage name="title" component="span" className={css.error} />
-          </div>
+    <form className={css.form} action={handleSubmit}>
+      <div className={css.formGroup}>
+        <label htmlFor="title">Title</label>
+        <Field id="title" type="text" name="title" className={css.input} defaultValue={draft?.title} onChange={handleChange} />
+        <ErrorMessage name="title" component="span" className={css.error} />
+      </div>
 
-          <div className={css.formGroup}>
-            <label htmlFor="content">Content</label>
-            <Field
-              as="textarea"
+      <div className={css.formGroup}>
+        <label htmlFor="content">Content</label>
+        <Field
+          as="textarea"
               id="content"
               name="content"
               rows={8}
-              className={css.textarea}
-            />
+          className={css.textarea}
+          defaultValue={draft?.content}
+          onChange={handleChange}
+        />
             <ErrorMessage
               name="content"
               component="span"
               className={css.error} />
-          </div>
+      </div>
 
-          <div className={css.formGroup}>
+      <div className={css.formGroup}>
             <label htmlFor="tag">Tag</label>
             <Field
               as="select"
               id="tag"
               name="tag"
-              className={css.select}>
+              className={css.select}
+              defaultValue={draft?.tag}
+              onChange={handleChange}>
               <option value="Todo">Todo</option>
               <option value="Work">Work</option>
               <option value="Personal">Personal</option>
@@ -94,9 +100,9 @@ export const NoteForm: React.FC<NoteFormProps> = ({ onCancel, onCreated }) => {
               component="span"
               className={css.error}
             />
-          </div>
+      </div>
 
-          <div className={css.actions}>
+      <div className={css.actions}>
             <button
               type="button"
               className={css.cancelButton}
@@ -111,9 +117,7 @@ export const NoteForm: React.FC<NoteFormProps> = ({ onCancel, onCreated }) => {
             >
               {mutation.isPending ? "Creating..." : "Create note"}
             </button>
-          </div>
-        </Form>
-      )}
-    </Formik>
-  );
-};
+      </div>
+    </form>
+  )
+}
