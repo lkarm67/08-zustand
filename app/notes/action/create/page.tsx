@@ -5,7 +5,6 @@ import css from './CreateNote.module.css'
 export const metadata: Metadata = {
     title: 'Create Note',
     description: 'Create a new note',
-    url: 'https://08-zustand-two-alpha.vercel.app/notes/create',
     openGraph: {
       title: 'Creating Note',
       description: 'Create a new note',
