@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: { slug: string[] } 
     openGraph: {
       title: `${slug[0]} Notes`,
       description: `Notes tagged with "${slug[0]}"`,
-      url: "https://08-zustand-two-alpha.vercel.app",
+      url: `https://08-zustand-two-alpha.vercel.app/notes/filter/${slug.join('/')}`,
       images: [
         { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
       ],
