@@ -1,6 +1,7 @@
 import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
+import type { Metadata } from "next";
 
 type Params = {
   id: string;
@@ -10,7 +11,7 @@ type Props = {
   params: Promise<Params>;
 };
 
-export async function generateMetadata({ params }: Props){
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const note = await fetchNoteById(id);
   return {

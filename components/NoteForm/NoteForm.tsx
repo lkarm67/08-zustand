@@ -2,64 +2,65 @@
 
 import css from "./NoteForm.module.css";
 import type { CreateNoteParams } from "@/types/note";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import {  useNoteDraftStore } from "@/lib/store/noteStore";
+import { useNoteDraftStore } from "@/lib/store/noteStore";
 
-/*export interface NoteFormValues {
-  title: string;
-  content: string;
-  tag: NoteTag;
-}
-
-
-interface NoteFormProps {
-  onCancel: () => void;
-  onCreated: () => void;
-}
-*/
-export default function NoteForm(){
+export default function NoteForm() {
   const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (data: CreateNoteParams) => createNote(data),
     onSuccess: () => {
       clearDraft();
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       router.back();
     },
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setDraft({ ...draft, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault(); // відміняємо стандартну відправку форми
+    e.preventDefault();
 
-  const formData = new FormData(e.currentTarget);
-  const values: CreateNoteParams = {
-    title: formData.get("title") as string,
-    content: formData.get("content") as string,
-    tag: (formData.get("tag") as CreateNoteParams["tag"]) || "Todo",
+    const formData = new FormData(e.currentTarget);
+    const values: CreateNoteParams = {
+      title: formData.get("title") as string,
+      content: formData.get("content") as string,
+      tag: (formData.get("tag") as CreateNoteParams["tag"]) || "Todo",
+    };
+
+    mutation.mutate(values);
   };
-
-  mutation.mutate(values);
-};
 
   const handleCancel = () => {
     router.back();
   };
-  
+
   return (
     <form className={css.form} onSubmit={handleSubmit}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
-        <input id="title" type="text" name="title" className={css.input} placeholder="Title" defaultValue={draft.title} onChange={handleChange} required />
+        <input
+          id="title"
+          type="text"
+          name="title"
+          className={css.input}
+          placeholder="Title"
+          defaultValue={draft.title}
+          onChange={handleChange}
+          required
+        />
       </div>
 
       <div className={css.formGroup}>
@@ -83,7 +84,8 @@ export default function NoteForm(){
           name="tag"
           className={css.select}
           defaultValue={draft.tag}
-          onChange={handleChange}>
+          onChange={handleChange}
+        >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
