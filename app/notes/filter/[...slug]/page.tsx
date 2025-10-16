@@ -7,7 +7,9 @@ interface Props {
   params: Promise<{ slug: string[] }>;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string[] } }): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string[] }> }
+): Promise<Metadata> {
   const { slug } = await params;
   return {
     title: `${slug[0]} Notes`,
@@ -15,7 +17,7 @@ export async function generateMetadata({ params }: { params: { slug: string[] } 
     openGraph: {
       title: `${slug[0]} Notes`,
       description: `Notes tagged with "${slug[0]}"`,
-      url: `https://08-zustand-two-alpha.vercel.app/notes/filter/${slug.join('/')}`,
+      url: `https://08-zustand-two-alpha.vercel.app/notes/filter/${slug.join("/")}`,
       images: [
         { url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg" },
       ],
